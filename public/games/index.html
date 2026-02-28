@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web Games - Menu Principal</title>
+    <meta name="description" content="Collection de jeux web amusants et addictifs. Jouez au Sudoku, au jeu de paires et bien plus encore!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-particles"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="hero-header">
+            <h1 class="main-title">
+                <span class="title-icon">🎮</span>
+                Simple Web Games
+            </h1>
+            <p class="subtitle">Choisissez votre aventure</p>
+        </header>
+
+        <!-- Games Grid -->
+        <div class="games-grid">
+            <!-- Sudoku Card -->
+            <a href="Suduku.html" class="game-card sudoku">
+                <div class="card-inner">
+                    <div class="card-icon">🧩</div>
+                    <h2 class="card-title">Sudoku Master</h2>
+                    <p class="card-description">
+                        Testez votre logique avec ce classique intemporel. 
+                        Plusieurs niveaux de difficulté pour tous les joueurs.
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🎯 4 Niveaux</span>
+                        <span class="feature">⏱️ Chronomètre</span>
+                        <span class="feature">🏆 Tableau des scores</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Pair Game Card -->
+            <a href="Pair.html" class="game-card pairs">
+                <div class="card-inner">
+                    <div class="card-icon">🎴</div>
+                    <h2 class="card-title">Jeu de Paires</h2>
+                    <p class="card-description">
+                        Entraînez votre mémoire en trouvant toutes les paires. 
+                        Rapidité et concentration sont la clé!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🧠 Mémoire</span>
+                        <span class="feature">⚡ Bonus Combo</span>
+                        <span class="feature">🎨 Belles animations</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Chess Card -->
+            <a href="Chess.html" class="game-card chess">
+                <div class="card-inner">
+                    <div class="card-icon">♔</div>
+                    <h2 class="card-title">Chess Master</h2>
+                    <p class="card-description">
+                        Affrontez l'IA aux échecs avec une stratégie avancée. 
+                        5 niveaux de difficulté pour tous les joueurs!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">⭐ 5 Niveaux IA</span>
+                        <span class="feature">🧠 Algorithme Minimax</span>
+                        <span class="feature">📊 Historique des coups</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Spider Solitaire Card -->
+            <a href="SpiderSolitaire.html" class="game-card solitaire">
+                <div class="card-inner">
+                    <div class="card-icon">🕷️</div>
+                    <h2 class="card-title">Spider Solitaire</h2>
+                    <p class="card-description">
+                        Le célèbre jeu de cartes classique de Windows. 
+                        Choisissez votre difficulté et complétez les 8 séquences!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🎴 3 Difficultés</span>
+                        <span class="feature">⏱️ Chronomètre</span>
+                        <span class="feature">🏆 Système de score</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Yahtzee Card -->
+            <a href="Yahtzee.html" class="game-card yahtzee">
+                <div class="card-inner">
+                    <div class="card-icon">🎲</div>
+                    <h2 class="card-title">Yahtzee Master</h2>
+                    <p class="card-description">
+                        Le classique jeu de dés! Lancez, gardez et marquez 
+                        des combinaisons pour battre votre meilleur score!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🎲 5 Dés</span>
+                        <span class="feature">📊 13 Catégories</span>
+                        <span class="feature">⭐ Bonus</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- 2048 Card -->
+            <a href="2048.html" class="game-card game-2048">
+                <div class="card-inner">
+                    <div class="card-icon">🧱</div>
+                    <h2 class="card-title">2048</h2>
+                    <p class="card-description">
+                        Le puzzle addictif! Fusionnez les tuiles pour 
+                        atteindre le nombre mythique 2048!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🎯 Addictif</span>
+                        <span class="feature">📱 Touch & Clavier</span>
+                        <span class="feature">🏆 Meilleur Score</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Snake Card -->
+            <a href="Snake.html" class="game-card snake">
+                <div class="card-inner">
+                    <div class="card-icon">🐍</div>
+                    <h2 class="card-title">Snake Master</h2>
+                    <p class="card-description">
+                        Le classique serpent! Mangez, grandissez et 
+                        survivez le plus longtemps possible!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🚀 3 Vitesses</span>
+                        <span class="feature">🧱 Mode Obstacles</span>
+                        <span class="feature">📈 Niveaux</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+
+            <!-- Minesweeper Card -->
+            <a href="Minesweeper.html" class="game-card minesweeper">
+                <div class="card-inner">
+                    <div class="card-icon">💣</div>
+                    <h2 class="card-title">Démineur Master</h2>
+                    <p class="card-description">
+                        Logique et intuition! Trouvez toutes les mines 
+                        sans les faire exploser!
+                    </p>
+                    <div class="card-features">
+                        <span class="feature">🚩 Drapeaux</span>
+                        <span class="feature">⚡ 3 Difficultés</span>
+                        <span class="feature">⏲️ Chrono</span>
+                    </div>
+                    <div class="play-btn">
+                        <span>Jouer maintenant</span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+                <div class="card-glow"></div>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">
+                <span class="heart">❤️</span> 
+                Fait avec passion pour les joueurs
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.bg-particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Add hover effect to game cards
+        document.querySelectorAll('.game-card:not(.coming-soon)').forEach(card => {
+            card.addEventListener('mouseenter', function(e) {
+                const glow = this.querySelector('.card-glow');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                glow.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.15), transparent)`;
+            });
+
+            card.addEventListener('mousemove', function(e) {
+                const glow = this.querySelector('.card-glow');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                glow.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.15), transparent)`;
+            });
+        });
+
+        // Add tilt effect on card hover
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
+        });
+    </script>
+<script src="score-sync.js"></script></body>
+</html>
+

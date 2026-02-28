@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spider Solitaire - Simple Web Games</title>
+    <meta name="description" content="Jouez au Spider Solitaire classique avec une interface moderne et élégante">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background particles */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(168, 85, 247, 0.4);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Game Container */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(51, 65, 85, 0.8);
+            color: white;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(71, 85, 105, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* Difficulty Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .difficulty-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .difficulty-btn {
+            padding: 20px;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            background: rgba(30, 41, 59, 0.6);
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(51, 65, 85, 0.8);
+            border-color: rgba(168, 85, 247, 0.6);
+            transform: translateX(5px);
+        }
+
+        .difficulty-info {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        /* Game Board */
+        .game-board {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            min-height: 600px;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .tableau {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .column {
+            min-height: 500px;
+            border-radius: 12px;
+            padding: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .column::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 140px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            z-index: 0;
+        }
+
+        .column.drag-over {
+            background: linear-gradient(to bottom, rgba(139, 92, 246, 0.3), transparent);
+        }
+
+        .column.drag-over::before {
+            border-color: rgba(139, 92, 246, 0.8);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .column.hint-target::before {
+            border-color: #facc15;
+            background: rgba(250, 204, 21, 0.15);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+            border-style: solid;
+            animation: pulse 1s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) scale(1.03); }
+        }
+
+        /* Playing Card */
+        .card {
+            width: 100%;
+            aspect-ratio: 5/7;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: -85%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            z-index: 1;
+        }
+
+        .card:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Face Down Card */
+        .card.face-down {
+            background: #1e3a8a;
+            border: 2px solid #fff;
+            overflow: hidden;
+        }
+
+        .card.face-down::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background: 
+                repeating-linear-gradient(45deg, 
+                    transparent 0px, 
+                    transparent 5px, 
+                    rgba(255, 255, 255, 0.1) 5px, 
+                    rgba(255, 255, 255, 0.1) 10px),
+                repeating-linear-gradient(-45deg, 
+                    transparent 0px, 
+                    transparent 5px, 
+                    rgba(255, 255, 255, 0.1) 5px, 
+                    rgba(255, 255, 255, 0.1) 10px),
+                radial-gradient(circle at 50% 50%, #3b82f6, #1e3a8a);
+            border-radius: 4px;
+        }
+
+        .card.face-down::after {
+            content: '🕷️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        /* Face Up Card */
+        .card.face-up {
+            background: white;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            padding: 4px;
+        }
+
+        .card.hearts,
+        .card.diamonds {
+            color: #dc2626;
+        }
+
+        .card.clubs,
+        .card.spades {
+            color: #000;
+        }
+
+        /* Card Corner Values */
+        .card-corner {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 0.9;
+            font-weight: bold;
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
+        }
+
+        .card-corner.top-left {
+            top: 3px;
+            left: 3px;
+        }
+
+        .card-corner.bottom-right {
+            bottom: 3px;
+            right: 3px;
+            transform: rotate(180deg);
+        }
+
+        /* Card Pattern Container */
+        .card-pattern {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            padding: 20% 10%;
+            align-content: center;
+            justify-content: center;
+        }
+
+        /* Suit Symbol */
+        .suit-symbol {
+            font-size: clamp(0.8rem, 2vw, 1.2rem);
+            text-align: center;
+        }
+
+        /* Face Card Styling */
+        .card.face-card .card-pattern {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: bold;
+        }
+
+        /* Draggable States */
+        .card.draggable {
+            cursor: grab;
+        }
+        
+        .card.draggable:hover {
+            z-index: 20;
+            transform: translateY(-3px);
+        }
+
+        .card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            z-index: 100;
+        }
+
+        /* Hint Animation */
+        @keyframes hint-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .card.hint-source {
+            animation: hint-bounce 0.8s ease infinite;
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
+            z-index: 15;
+        }
+
+        /* Stock */
+        .stock-container {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .stock-pile {
+            display: flex;
+            gap: -30px;
+        }
+
+        .stock-deck {
+            width: 70px;
+            height: 98px;
+            position: relative;
+            background: #1e3a8a;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+            margin-left: -30px;
+        }
+        
+        .stock-deck:first-child {
+            margin-left: 0;
+        }
+
+        .stock-deck:hover {
+            transform: translateY(-5px);
+            z-index: 10;
+        }
+
+        .stock-deck::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background: 
+                repeating-linear-gradient(45deg, 
+                    transparent 0px, 
+                    transparent 5px, 
+                    rgba(255, 255, 255, 0.1) 5px, 
+                    rgba(255, 255, 255, 0.1) 10px),
+                repeating-linear-gradient(-45deg, 
+                    transparent 0px, 
+                    transparent 5px, 
+                    rgba(255, 255, 255, 0.1) 5px, 
+                    rgba(255, 255, 255, 0.1) 10px),
+                radial-gradient(circle at 50% 50%, #3b82f6, #1e3a8a);
+            border-radius: 4px;
+        }
+
+        .stock-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        /* Win Modal */
+        .win-modal {
+            text-align: center;
+        }
+
+        .win-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Completed sequence animation */
+        @keyframes complete-sequence {
+            0% { transform: scale(1) rotate(0); opacity: 1; }
+            50% { transform: scale(1.15) rotate(5deg); opacity: 0.9; box-shadow: 0 0 30px #10b981; }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
+        }
+
+        .card.completing {
+            animation: complete-sequence 0.8s ease-in-out forwards;
+            z-index: 50;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .tableau {
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .card {
+                margin-bottom: -75%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Particles -->
+    <div class="bg-particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span>🕷️</span>
+            <span>Spider Solitaire</span>
+        </div>
+        <a href="/" class="back-btn">
+            <span>←</span>
+            <span>Menu Principal</span>
+        </a>
+    </header>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Mouvements</div>
+                    <div class="stat-value" id="moves">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Temps</div>
+                    <div class="stat-value" id="timer">00:00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">500</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Séquences</div>
+                    <div class="stat-value" id="sequences">0/8</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn btn-secondary" id="undoBtn">
+                    <span>↶</span>
+                    <span>Annuler</span>
+                </button>
+                <button class="btn btn-secondary" id="hintBtn">
+                    <span>💡</span>
+                    <span>Indice</span>
+                </button>
+                <button class="btn btn-primary" id="newGameBtn">
+                    <span>🎮</span>
+                    <span>Nouveau Jeu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Board -->
+        <div class="game-board">
+            <div class="tableau" id="tableau"></div>
+            <div class="stock-container">
+                <div class="stock-pile" id="stockPile"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Difficulty Modal -->
+    <div class="modal active" id="difficultyModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Choisir la Difficulté</h2>
+            <p class="modal-subtitle">Sélectionnez le nombre de couleurs pour commencer</p>
+            <div class="difficulty-options">
+                <button class="difficulty-btn" data-suits="1">
+                    <span>🕷️ Facile</span>
+                    <span class="difficulty-info">1 couleur</span>
+                </button>
+                <button class="difficulty-btn" data-suits="2">
+                    <span>🕷️🕷️ Moyen</span>
+                    <span class="difficulty-info">2 couleurs</span>
+                </button>
+                <button class="difficulty-btn" data-suits="4">
+                    <span>🕷️🕷️🕷️🕷️ Difficile</span>
+                    <span class="difficulty-info">4 couleurs</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="modal" id="winModal">
+        <div class="modal-content win-modal">
+            <div class="win-icon">🏆</div>
+            <h2 class="modal-title">Félicitations!</h2>
+            <p class="modal-subtitle">Vous avez terminé le jeu!</p>
+            <div class="stats" style="margin: 30px 0; justify-content: center;">
+                <div class="stat">
+                    <div class="stat-label">Mouvements</div>
+                    <div class="stat-value" id="finalMoves">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Temps</div>
+                    <div class="stat-value" id="finalTime">00:00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Score Final</div>
+                    <div class="stat-value" id="finalScore">500</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="location.reload()">
+                <span>🎮</span>
+                <span>Jouer Encore</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Card suit symbols
+        const SUIT_SYMBOLS = {
+            'spades': '♠',
+            'hearts': '♥',
+            'clubs': '♣',
+            'diamonds': '♦'
+        };
+
+        // Game State
+        let gameState = {
+            suits: 1,
+            columns: [],
+            stock: [],
+            moves: 0,
+            score: 500,
+            sequences: 0,
+            timeElapsed: 0,
+            timerInterval: null,
+            moveHistory: [],
+            draggedElement: null,
+            draggedCards: null,
+            draggedFromColumn: null
+        };
+
+        // Card values
+        const SUITS = ['spades', 'hearts', 'clubs', 'diamonds'];
+        const VALUES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.bg-particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Difficulty selection
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                gameState.suits = parseInt(btn.dataset.suits);
+                document.getElementById('difficultyModal').classList.remove('active');
+                initGame();
+            });
+        });
+
+        // Initialize game
+        function initGame() {
+            gameState.columns = Array(10).fill(null).map(() => []);
+            gameState.stock = [];
+            gameState.moves = 0;
+            gameState.score = 500;
+            gameState.sequences = 0;
+            gameState.timeElapsed = 0;
+            gameState.moveHistory = [];
+
+            // Clear timer
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+
+            // Create deck
+            const deck = createDeck();
+            shuffleDeck(deck);
+
+            // Deal cards to columns
+            let cardIndex = 0;
+            for (let col = 0; col < 10; col++) {
+                const cardCount = col < 4 ? 6 : 5;
+                for (let i = 0; i < cardCount; i++) {
+                    const card = deck[cardIndex++];
+                    card.faceUp = i === cardCount - 1;
+                    gameState.columns[col].push(card);
+                }
+            }
+
+            // Remaining cards go to stock
+            while (cardIndex < deck.length) {
+                gameState.stock.push(deck[cardIndex++]);
+            }
+
+            // Start timer
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+
+            // Render
+            renderGame();
+            updateUndoButton();
+        }
+
+        // Create deck
+        function createDeck() {
+            const deck = [];
+            const suitsToUse = gameState.suits === 1 ? ['spades'] : 
+                               gameState.suits === 2 ? ['spades', 'hearts'] : 
+                               SUITS;
+
+            // Create 8 complete sets
+            for (let set = 0; set < 8; set++) {
+                for (let value of VALUES) {
+                    const suitName = suitsToUse[set % suitsToUse.length];
+                    deck.push({
+                        suit: suitName,
+                        value: value,
+                        valueIndex: VALUES.indexOf(value),
+                        faceUp: false,
+                        id: `${value}-${suitName}-${set}`
+                    });
+                }
+            }
+
+            return deck;
+        }
+
+        // Shuffle deck
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        // Render game
+        function renderGame() {
+            renderTableau();
+            renderStock();
+            updateStats();
+        }
+
+        // Render tableau
+        function renderTableau() {
+            const tableau = document.getElementById('tableau');
+            tableau.innerHTML = '';
+
+            gameState.columns.forEach((column, colIndex) => {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = 'column';
+                columnDiv.dataset.column = colIndex;
+
+                column.forEach((card, cardIndex) => {
+                    const cardDiv = createCardElement(card, colIndex, cardIndex);
+                    columnDiv.appendChild(cardDiv);
+                });
+
+                // Drop zone handlers
+                columnDiv.addEventListener('dragover', handleDragOver);
+                columnDiv.addEventListener('drop', handleDrop);
+                columnDiv.addEventListener('dragleave', handleDragLeave);
+
+                tableau.appendChild(columnDiv);
+            });
+        }
+
+        // Create card element with proper suit pattern
+        function createCardElement(card, colIndex, cardIndex) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card ${card.faceUp ? 'face-up' : 'face-down'} ${card.suit}`;
+            cardDiv.dataset.column = colIndex;
+            cardDiv.dataset.index = cardIndex;
+            cardDiv.dataset.cardId = card.id;
+
+            if (card.faceUp) {
+                const suitSymbol = SUIT_SYMBOLS[card.suit];
+                
+                // Top Left Corner
+                const topLeft = document.createElement('div');
+                topLeft.className = 'card-corner top-left';
+                topLeft.innerHTML = `<div>${card.value}</div><div>${suitSymbol}</div>`;
+                cardDiv.appendChild(topLeft);
+
+                // Bottom Right Corner
+                const bottomRight = document.createElement('div');
+                bottomRight.className = 'card-corner bottom-right';
+                bottomRight.innerHTML = `<div>${card.value}</div><div>${suitSymbol}</div>`;
+                cardDiv.appendChild(bottomRight);
+
+                // Card Pattern
+                const pattern = document.createElement('div');
+                pattern.className = 'card-pattern';
+                
+                if (card.value === 'J' || card.value === 'Q' || card.value === 'K') {
+                    // Face cards
+                    cardDiv.classList.add('face-card');
+                    pattern.innerHTML = `<div>${card.value}<br>${suitSymbol}</div>`;
+                } else if (card.value === 'A') {
+                    // Ace
+                    pattern.innerHTML = `<div class="suit-symbol" style="font-size: 2rem;">${suitSymbol}</div>`;
+                } else {
+                    // Number cards - display multiple suit symbols
+                    const numValue = parseInt(card.value);
+                    pattern.innerHTML = getSuitPattern(numValue, suitSymbol);
+                }
+                
+                cardDiv.appendChild(pattern);
+
+                // Check if card can be dragged
+                if (canDragCard(colIndex, cardIndex)) {
+                    cardDiv.draggable = true;
+                    cardDiv.classList.add('draggable');
+                    cardDiv.addEventListener('dragstart', handleDragStart);
+                    cardDiv.addEventListener('dragend', handleDragEnd);
+                    cardDiv.addEventListener('dblclick', () => tryAutoMove(colIndex, cardIndex));
+                }
+            }
+
+            return cardDiv;
+        }
+
+        // Get suit pattern for number cards
+        function getSuitPattern(num, symbol) {
+            const patterns = {
+                2: `
+                    <div style="display:grid; grid-template-rows: 1fr 1fr; height:100%; gap:20px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                3: `
+                    <div style="display:grid; grid-template-rows: 1fr 1fr 1fr; height:100%;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                4: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height:100%; gap:5px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                5: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; height:100%;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="grid-column: span 2;">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                6: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; height:100%; gap:5px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                7: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr); height:100%; gap:2px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="grid-column: span 2;">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                8: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr); height:100%; gap:2px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                9: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, 1fr); height:100%; gap:1px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="grid-column: span 2;">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `,
+                10: `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, 1fr); height:100%; gap:1px;">
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                        <div class="suit-symbol" style="transform: rotate(180deg);">${symbol}</div>
+                    </div>
+                `
+            };
+
+            return patterns[num] || `<div class="suit-symbol">${symbol}</div>`;
+        }
+
+        // Check if card can be dragged
+        function canDragCard(colIndex, cardIndex) {
+            const column = gameState.columns[colIndex];
+            if (cardIndex >= column.length) return false;
+
+            // All cards from this point must form valid descending sequence of same suit
+            for (let i = cardIndex; i < column.length - 1; i++) {
+                const current = column[i];
+                const next = column[i + 1];
+
+                if (!current.faceUp || !next.faceUp) return false;
+                if (current.valueIndex !== next.valueIndex + 1) return false;
+                if (current.suit !== next.suit) return false;
+            }
+
+            return true;
+        }
+
+        // Drag handlers
+        function handleDragStart(e) {
+            const colIndex = parseInt(e.target.dataset.column);
+            const cardIndex = parseInt(e.target.dataset.index);
+
+            gameState.draggedCards = gameState.columns[colIndex].slice(cardIndex);
+            gameState.draggedFromColumn = colIndex;
+            gameState.draggedElement = e.target;
+
+            e.target.classList.add('dragging');
+            
+            // Also add dragging class to all cards being dragged
+            const column = e.target.parentElement;
+            for (let i = cardIndex + 1; i < column.children.length; i++) {
+                column.children[i].classList.add('dragging');
+            }
+
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            
+            // Remove dragging class from all cards
+            document.querySelectorAll('.card.dragging').forEach(card => {
+                card.classList.remove('dragging');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragLeave(e) {
+            if (e.target.classList.contains('column')) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const toColumn = parseInt(e.currentTarget.dataset.column);
+
+            if (gameState.draggedCards && gameState.draggedFromColumn !== null) {
+                if (canPlaceCards(toColumn, gameState.draggedCards)) {
+                    moveCards(gameState.draggedFromColumn, toColumn, gameState.draggedCards.length);
+                }
+
+                gameState.draggedCards = null;
+                gameState.draggedFromColumn = null;
+                gameState.draggedElement = null;
+            }
+        }
+
+        // Check if cards can be placed
+        function canPlaceCards(colIndex, cards) {
+            const column = gameState.columns[colIndex];
+            
+            // Empty column accepts any card
+            if (column.length === 0) return true;
+
+            const topCard = column[column.length - 1];
+            const bottomCard = cards[0];
+
+            // Must be descending by 1
+            return topCard.faceUp && topCard.valueIndex === bottomCard.valueIndex + 1;
+        }
+
+        // Save current state for undo
+        function saveState() {
+            const state = {
+                columns: gameState.columns.map(col => col.map(card => ({...card}))),
+                stock: gameState.stock.map(card => ({...card})),
+                moves: gameState.moves,
+                score: gameState.score,
+                sequences: gameState.sequences
+            };
+            gameState.moveHistory.push(state);
+            
+            // Limit history to last 50 moves to avoid memory issues
+            if (gameState.moveHistory.length > 50) {
+                gameState.moveHistory.shift();
+            }
+            
+            updateUndoButton();
+        }
+
+        // Update undo button state
+        function updateUndoButton() {
+            const undoBtn = document.getElementById('undoBtn');
+            if (gameState.moveHistory.length === 0) {
+                undoBtn.style.opacity = '0.5';
+                undoBtn.style.cursor = 'not-allowed';
+            } else {
+                undoBtn.style.opacity = '1';
+                undoBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // Move cards
+        function moveCards(fromCol, toCol, count) {
+            if (fromCol === toCol) return;
+
+            // Save state before move
+            saveState();
+
+            const cards = gameState.columns[fromCol].splice(-count);
+            gameState.columns[toCol].push(...cards);
+
+            // Flip top card if needed
+            if (gameState.columns[fromCol].length > 0) {
+                const topCard = gameState.columns[fromCol][gameState.columns[fromCol].length - 1];
+                if (!topCard.faceUp) {
+                    topCard.faceUp = true;
+                }
+            }
+
+            gameState.moves++;
+            gameState.score = Math.max(0, gameState.score - 1);
+
+            // Check for complete sequences
+            checkForCompleteSequence(toCol);
+
+            renderGame();
+        }
+
+        // Try auto-move on double click
+        function tryAutoMove(fromCol, cardIndex) {
+            const cards = gameState.columns[fromCol].slice(cardIndex);
+            
+            for (let toCol = 0; toCol < 10; toCol++) {
+                if (toCol !== fromCol && canPlaceCards(toCol, cards)) {
+                    moveCards(fromCol, toCol, cards.length);
+                    return;
+                }
+            }
+        }
+
+        // Check for complete sequence (K to A of same suit)
+        function checkForCompleteSequence(colIndex) {
+            const column = gameState.columns[colIndex];
+            if (column.length < 13) return;
+
+            const last13 = column.slice(-13);
+
+            // Check if it's K to A in same suit
+            if (last13[0].value !== 'K') return;
+
+            let isComplete = true;
+            const suit = last13[0].suit;
+
+            for (let i = 0; i < 13; i++) {
+                if (last13[i].suit !== suit || 
+                    last13[i].valueIndex !== 12 - i ||
+                    !last13[i].faceUp) {
+                    isComplete = false;
+                    break;
+                }
+            }
+
+            if (isComplete) {
+                // Animate and remove
+                const tableau = document.getElementById('tableau');
+                const columnDiv = tableau.children[colIndex];
+                const last13Elements = Array.from(columnDiv.children).slice(-13);
+                last13Elements.forEach(el => el.classList.add('completing'));
+
+                setTimeout(() => {
+                    gameState.columns[colIndex].splice(-13);
+                    gameState.sequences++;
+                    gameState.score += 100;
+
+                    // Flip top card
+                    if (gameState.columns[colIndex].length > 0) {
+                        const topCard = gameState.columns[colIndex][gameState.columns[colIndex].length - 1];
+                        if (!topCard.faceUp) {
+                            topCard.faceUp = true;
+                        }
+                    }
+
+                    renderGame();
+
+                    // Check for win
+                    if (gameState.sequences === 8) {
+                        showWinModal();
+                    }
+                }, 800);
+            }
+        }
+
+        // Deal from stock
+        function dealFromStock() {
+            if (gameState.stock.length === 0) return;
+
+            // Check for empty columns
+            const hasEmptyColumn = gameState.columns.some(col => col.length === 0);
+            if (hasEmptyColumn) {
+                alert('Remplissez toutes les colonnes vides avant de distribuer!');
+                return;
+            }
+
+            // Save state before dealing
+            saveState();
+
+            // Deal one card to each column
+            for (let i = 0; i < 10 && gameState.stock.length > 0; i++) {
+                const card = gameState.stock.pop();
+                card.faceUp = true;
+                gameState.columns[i].push(card);
+            }
+
+            gameState.moves++;
+            gameState.score = Math.max(0, gameState.score - 1);
+
+            renderGame();
+        }
+
+        // Render stock
+        function renderStock() {
+            const stockPile = document.getElementById('stockPile');
+            stockPile.innerHTML = '';
+
+            const dealsRemaining = Math.ceil(gameState.stock.length / 10);
+
+            for (let i = 0; i < dealsRemaining; i++) {
+                const stockDeck = document.createElement('div');
+                stockDeck.className = 'stock-deck';
+                
+                if (i === dealsRemaining - 1) {
+                    stockDeck.addEventListener('click', dealFromStock);
+                    const count = document.createElement('div');
+                    count.className = 'stock-count';
+                    count.textContent = gameState.stock.length;
+                    stockDeck.appendChild(count);
+                    stockDeck.style.cursor = 'pointer';
+                }
+
+                stockPile.appendChild(stockDeck);
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('moves').textContent = gameState.moves;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('sequences').textContent = `${gameState.sequences}/8`;
+        }
+
+        // Update timer
+        function updateTimer() {
+            gameState.timeElapsed++;
+            const minutes = Math.floor(gameState.timeElapsed / 60);
+            const seconds = gameState.timeElapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Show win modal
+        function showWinModal() {
+            clearInterval(gameState.timerInterval);
+
+            document.getElementById('finalMoves').textContent = gameState.moves;
+            document.getElementById('finalTime').textContent = document.getElementById('timer').textContent;
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('winModal').classList.add('active');
+        }
+
+        // Improved Hint functionality with strategic evaluation
+        function getHint() {
+            // Clear previous hints
+            document.querySelectorAll('.hint-source').forEach(el => el.classList.remove('hint-source'));
+            document.querySelectorAll('.hint-target').forEach(el => el.classList.remove('hint-target'));
+
+            const possibleMoves = [];
+
+            // Find all possible moves
+            for (let fromCol = 0; fromCol < 10; fromCol++) {
+                if (gameState.columns[fromCol].length === 0) continue;
+
+                // Find longest valid sequence
+                let startIndex = gameState.columns[fromCol].length - 1;
+                while (startIndex > 0) {
+                    const current = gameState.columns[fromCol][startIndex];
+                    const prev = gameState.columns[fromCol][startIndex - 1];
+                    
+                    if (!prev.faceUp || 
+                        prev.valueIndex !== current.valueIndex + 1 ||
+                        prev.suit !== current.suit) {
+                        break;
+                    }
+                    startIndex--;
+                }
+
+                // Evaluate each possible sub-sequence
+                for (let k = startIndex; k < gameState.columns[fromCol].length; k++) {
+                    const cardsToMove = gameState.columns[fromCol].slice(k);
+                    
+                    for (let toCol = 0; toCol < 10; toCol++) {
+                        if (fromCol === toCol) continue;
+                        
+                        if (canPlaceCards(toCol, cardsToMove)) {
+                            const score = evaluateMove(fromCol, toCol, k, cardsToMove);
+                            possibleMoves.push({
+                                fromCol,
+                                toCol,
+                                cardIndex: k,
+                                cards: cardsToMove,
+                                score
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (possibleMoves.length === 0) {
+                // No moves found
+                if (gameState.stock.length > 0) {
+                    alert('Aucun mouvement trouvé! Distribuez de nouvelles cartes.');
+                } else {
+                    alert('Aucun mouvement possible!');
+                }
+                return;
+            }
+
+            // Sort moves by score (highest first) and show the best one
+            possibleMoves.sort((a, b) => b.score - a.score);
+            const bestMove = possibleMoves[0];
+            
+            showHint(bestMove.fromCol, bestMove.cardIndex, bestMove.toCol);
+        }
+
+        // Evaluate move quality (higher score = better move)
+        function evaluateMove(fromCol, toCol, cardIndex, cardsToMove) {
+            let score = 0;
+            const fromColumn = gameState.columns[fromCol];
+            const toColumn = gameState.columns[toCol];
+
+            // PRIORITY 1: Does this uncover a face-down card? (Very important!)
+            if (cardIndex > 0 && !fromColumn[cardIndex - 1].faceUp) {
+                score += 100; // High priority!
+            }
+
+            // PRIORITY 2: Building same-suit sequences
+            if (toColumn.length > 0) {
+                const topCard = toColumn[toColumn.length - 1];
+                const movingCard = cardsToMove[0];
+                
+                // Same suit = excellent move
+                if (topCard.suit === movingCard.suit) {
+                    score += 50;
+                    
+                    // Count how many same-suit cards in sequence we'll create
+                    let sequenceLength = 1;
+                    for (let i = toColumn.length - 1; i > 0; i--) {
+                        if (toColumn[i].suit === toColumn[i-1].suit && 
+                            toColumn[i].valueIndex === toColumn[i-1].valueIndex - 1) {
+                            sequenceLength++;
+                        } else {
+                            break;
+                        }
+                    }
+                    // Bonus for creating longer sequences
+                    score += sequenceLength * 5;
+                }
+            }
+
+            // PRIORITY 3: Empty column strategy
+            if (toColumn.length === 0) {
+                // Only move to empty column if:
+                // 1) Moving a King (ideal)
+                // 2) OR it uncovers a card (already scored above)
+                // 3) OR we're moving a long sequence
+                if (cardsToMove[0].value === 'K') {
+                    score += 30; // Kings belong in empty columns
+                } else if (cardsToMove.length >= 3) {
+                    score += 20; // Long sequences ok
+                } else if (cardIndex > 0 && !fromColumn[cardIndex - 1].faceUp) {
+                    // Already scored for uncovering, but slightly boost
+                    score += 10;
+                } else {
+                    // Discourage moving small cards to empty columns
+                    score -= 30;
+                }
+            }
+
+            // PRIORITY 4: Prefer moving smaller sequences (keep options open)
+            score += (13 - cardsToMove.length) * 2;
+
+            // PRIORITY 5: Avoid breaking up same-suit sequences
+            if (cardIndex > 0) {
+                const cardBelow = fromColumn[cardIndex - 1];
+                const movingCard = cardsToMove[0];
+                if (cardBelow.faceUp && 
+                    cardBelow.suit === movingCard.suit && 
+                    cardBelow.valueIndex === movingCard.valueIndex + 1) {
+                    score -= 25; // Penalty for breaking same-suit sequence
+                }
+            }
+
+            // PRIORITY 6: Prefer moves that create opportunities
+            // Check if the move allows other cards to be played
+            if (fromColumn.length - cardsToMove.length > 0) {
+                const newTopCard = fromColumn[fromColumn.length - cardsToMove.length - 1];
+                if (newTopCard.faceUp) {
+                    // Can this newly exposed card be played somewhere?
+                    for (let col = 0; col < 10; col++) {
+                        if (col === fromCol || col === toCol) continue;
+                        const targetCol = gameState.columns[col];
+                        if (targetCol.length > 0) {
+                            const targetTop = targetCol[targetCol.length - 1];
+                            if (targetTop.valueIndex === newTopCard.valueIndex + 1) {
+                                score += 15; // Creates new opportunity
+                                if (targetTop.suit === newTopCard.suit) {
+                                    score += 10; // Even better if same suit
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // PRIORITY 7: Avoid redundant moves
+            // Don't move from an empty-ish column unless necessary
+            if (fromColumn.length <= 3 && toColumn.length > 5) {
+                score -= 10;
+            }
+
+            return score;
+        }
+
+        function showHint(fromCol, cardIndex, toCol) {
+            const tableau = document.getElementById('tableau');
+            const sourceColumnDiv = tableau.children[fromCol];
+            const targetColumnDiv = tableau.children[toCol];
+
+            // Highlight source cards
+            for (let i = cardIndex; i < gameState.columns[fromCol].length; i++) {
+                if (sourceColumnDiv.children[i]) {
+                    sourceColumnDiv.children[i].classList.add('hint-source');
+                }
+            }
+
+            // Highlight target column
+            targetColumnDiv.classList.add('hint-target');
+
+            // Remove after 2 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.hint-source').forEach(el => el.classList.remove('hint-source'));
+                document.querySelectorAll('.hint-target').forEach(el => el.classList.remove('hint-target'));
+            }, 2000);
+        }
+
+        // Button handlers
+        document.getElementById('newGameBtn').addEventListener('click', () => {
+            document.getElementById('difficultyModal').classList.add('active');
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+        });
+
+        document.getElementById('undoBtn').addEventListener('click', undoMove);
+
+        // Undo function
+        function undoMove() {
+            if (gameState.moveHistory.length === 0) {
+                return;
+            }
+
+            const previousState = gameState.moveHistory.pop();
+            
+            // Restore previous state
+            gameState.columns = previousState.columns.map(col => col.map(card => ({...card})));
+            gameState.stock = previousState.stock.map(card => ({...card}));
+            gameState.moves = previousState.moves;
+            gameState.score = previousState.score;
+            gameState.sequences = previousState.sequences;
+
+            renderGame();
+            updateUndoButton();
+        }
+
+        document.getElementById('hintBtn').addEventListener('click', getHint);
+    </script>
+<script src="score-sync.js"></script></body>
+</html>
+

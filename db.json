@@ -1,0 +1,100 @@
+{
+  "games": [
+    {
+      "id": "2048",
+      "title": "2048 Master",
+      "description": "Fusionnez les tuiles pour atteindre 2048!",
+      "icon": "🧱",
+      "slug": "2048.html",
+      "highScore": 4,
+      "features": [
+        "🎯 Addictif",
+        "🏆 Score"
+      ]
+    },
+    {
+      "id": "sudoku",
+      "title": "Sudoku Master",
+      "description": "Testez votre logique avec ce classique intemporel.",
+      "icon": "🧩",
+      "slug": "Suduku.html",
+      "highScore": 0,
+      "features": [
+        "🎯 Logic",
+        "⏱️ Time"
+      ]
+    },
+    {
+      "id": "chess",
+      "title": "Chess Master",
+      "description": "Affrontez l'IA aux échecs avec une stratégie avancée.",
+      "icon": "♔",
+      "slug": "Chess.html",
+      "highScore": 0,
+      "features": [
+        "⭐ 5 Niveaux",
+        "🧠 IA"
+      ]
+    },
+    {
+      "id": "pair",
+      "title": "Jeu de Paires",
+      "description": "Entraînez votre mémoire en trouvant toutes les paires.",
+      "icon": "🎴",
+      "slug": "Pair.html",
+      "highScore": 0,
+      "features": [
+        "🧠 Mémoire",
+        "⚡ Bonus"
+      ]
+    },
+    {
+      "id": "snake",
+      "title": "Snake Master",
+      "description": "Le classique serpent! Mangez et grandissez.",
+      "icon": "🐍",
+      "slug": "Snake.html",
+      "highScore": 368,
+      "features": [
+        "🚀 3 Vitesses",
+        "📈 Niveaux"
+      ]
+    },
+    {
+      "id": "minesweeper",
+      "title": "Démineur Master",
+      "description": "Logique et intuition! Trouvez toutes les mines.",
+      "icon": "💣",
+      "slug": "Minesweeper.html",
+      "highScore": 0,
+      "features": [
+        "🚩 Drapeaux",
+        "⏲️ Chrono"
+      ]
+    },
+    {
+      "id": "spider",
+      "title": "Spider Solitaire",
+      "description": "Le célèbre jeu de cartes classique.",
+      "icon": "🕷️",
+      "slug": "SpiderSolitaire.html",
+      "highScore": 0,
+      "features": [
+        "🎴 3 Difficultés",
+        "🏆 Score"
+      ]
+    },
+    {
+      "id": "yahtzee",
+      "title": "Yahtzee Master",
+      "description": "Le classique jeu de dés! Laissez parler la chance.",
+      "icon": "🎲",
+      "slug": "Yahtzee.html",
+      "highScore": 0,
+      "features": [
+        "🎲 5 Dés",
+        "📊 13 Cats"
+      ]
+    }
+  ]
+}

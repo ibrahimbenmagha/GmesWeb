@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jouez au Yahtzee en ligne - Le célèbre jeu de dés avec scoring, animations et design moderne!">
+    <title>Yahtzee Master - Jeu de Dés</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-mid: #16213e;
+            --bg-gradient-end: #0f3460;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --accent-gold: #ffd700;
+            --accent-orange: #ff9500;
+            --accent-red: #ff4757;
+            --accent-green: #2ed573;
+            --accent-blue: #00a8ff;
+            --accent-purple: #9c88ff;
+            --dice-bg: #ffffff;
+            --dice-dots: #1a1a2e;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Back Button */
+        .back-to-menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .back-to-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-3px);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            margin-bottom: 10px;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 149, 0, 0.4)); }
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        /* Game Area */
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Dice Section */
+        .dice-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .dice {
+            width: 70px;
+            height: 70px;
+            background: var(--dice-bg);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .dice:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .dice.locked {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .dice.rolling {
+            animation: roll 0.5s ease-out;
+        }
+
+        @keyframes roll {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            25% { transform: rotateX(90deg) rotateY(90deg) scale(1.1); }
+            50% { transform: rotateX(180deg) rotateY(180deg); }
+            75% { transform: rotateX(270deg) rotateY(270deg) scale(1.1); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .dot {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dot::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--dice-dots);
+            border-radius: 50%;
+            display: none;
+        }
+
+        .dice.locked .dot::before {
+            background: #1a1a2e;
+        }
+
+        /* Dice face patterns */
+        .dice[data-value="1"] .dot:nth-child(5)::before { display: block; }
+        
+        .dice[data-value="2"] .dot:nth-child(1)::before,
+        .dice[data-value="2"] .dot:nth-child(9)::before { display: block; }
+        
+        .dice[data-value="3"] .dot:nth-child(1)::before,
+        .dice[data-value="3"] .dot:nth-child(5)::before,
+        .dice[data-value="3"] .dot:nth-child(9)::before { display: block; }
+        
+        .dice[data-value="4"] .dot:nth-child(1)::before,
+        .dice[data-value="4"] .dot:nth-child(3)::before,
+        .dice[data-value="4"] .dot:nth-child(7)::before,
+        .dice[data-value="4"] .dot:nth-child(9)::before { display: block; }
+        
+        .dice[data-value="5"] .dot:nth-child(1)::before,
+        .dice[data-value="5"] .dot:nth-child(3)::before,
+        .dice[data-value="5"] .dot:nth-child(5)::before,
+        .dice[data-value="5"] .dot:nth-child(7)::before,
+        .dice[data-value="5"] .dot:nth-child(9)::before { display: block; }
+        
+        .dice[data-value="6"] .dot:nth-child(1)::before,
+        .dice[data-value="6"] .dot:nth-child(3)::before,
+        .dice[data-value="6"] .dot:nth-child(4)::before,
+        .dice[data-value="6"] .dot:nth-child(6)::before,
+        .dice[data-value="6"] .dot:nth-child(7)::before,
+        .dice[data-value="6"] .dot:nth-child(9)::before { display: block; }
+
+        .lock-indicator {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            box-shadow: 0 2px 8px rgba(46, 213, 115, 0.5);
+        }
+
+        .dice.locked .lock-indicator {
+            display: flex;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+        }
+
+        .btn.secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .rolls-remaining {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .rolls-remaining span {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        /* Scorecard */
+        .scorecard {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .score-table {
+            width: 100%;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .score-row:hover:not(.scored):not(.bonus-row):not(.total-row) {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .score-row.scored {
+            background: rgba(46, 213, 115, 0.1);
+            cursor: default;
+        }
+
+        .score-row.preview {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .score-row.bonus-row,
+        .score-row.total-row {
+            background: rgba(255, 255, 255, 0.05);
+            cursor: default;
+            font-weight: 600;
+        }
+
+        .score-row.total-row {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 149, 0, 0.2));
+            margin-top: 10px;
+        }
+
+        .score-name {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .score-value {
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .score-value.preview-value {
+            color: var(--accent-gold);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--card-border);
+            margin: 15px 0;
+        }
+
+        .upper-bonus {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* Game Over Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, var(--bg-gradient-mid), var(--bg-gradient-end));
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .modal-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .dice {
+                width: 55px;
+                height: 55px;
+            }
+
+            .dot::before {
+                width: 9px;
+                height: 9px;
+            }
+
+            .game-area {
+                gap: 15px;
+            }
+
+            .dice-section,
+            .scorecard {
+                padding: 20px;
+            }
+
+            .score-row {
+                padding: 8px 10px;
+            }
+
+            .score-name {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Rules Button */
+        .rules-btn {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .rules-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Rules Modal Styles */
+        .rules-modal-content {
+            max-width: 600px;
+            text-align: left;
+            padding: 30px;
+        }
+
+        .rules-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            padding-right: 10px;
+        }
+
+        .rules-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .rules-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .rules-content::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 4px;
+        }
+
+        .rules-section {
+            margin-bottom: 20px;
+        }
+
+        .rules-section h4 {
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .rules-section ul {
+            list-style-position: inside;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .rules-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .rule-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .rule-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .rule-desc {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="/" class="back-to-menu-btn">
+        <span>←</span>
+        <span>Menu</span>
+    </a>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">🎲 Yahtzee Master</h1>
+            <p class="subtitle">Lancez les dés et marquez un maximum de points!</p>
+            <button class="rules-btn" id="btn-rules">
+                <span>📜</span> Comment Jouer?
+            </button>
+        </header>
+
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Dice Section -->
+            <div class="dice-section">
+                <h2 class="section-title">🎲 Vos Dés</h2>
+                
+                <div class="dice-container" id="dice-container">
+                    <!-- Dice will be generated by JS -->
+                </div>
+
+                <p class="rolls-remaining">Lancers restants: <span id="rolls-left">3</span></p>
+
+                <div class="controls">
+                    <button class="btn" id="btn-roll">
+                        🎲 Lancer les dés
+                    </button>
+                    <button class="btn secondary" id="btn-new-game">
+                        🔄 Nouvelle partie
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scorecard -->
+            <div class="scorecard">
+                <h2 class="section-title">📊 Feuille de Score</h2>
+                
+                <div class="score-table" id="score-table">
+                    <!-- Upper Section -->
+                    <div class="score-row" data-category="ones">
+                        <span class="score-name">⚀ As (1)</span>
+                        <span class="score-value" id="score-ones">-</span>
+                    </div>
+                    <div class="score-row" data-category="twos">
+                        <span class="score-name">⚁ Deux (2)</span>
+                        <span class="score-value" id="score-twos">-</span>
+                    </div>
+                    <div class="score-row" data-category="threes">
+                        <span class="score-name">⚂ Trois (3)</span>
+                        <span class="score-value" id="score-threes">-</span>
+                    </div>
+                    <div class="score-row" data-category="fours">
+                        <span class="score-name">⚃ Quatre (4)</span>
+                        <span class="score-value" id="score-fours">-</span>
+                    </div>
+                    <div class="score-row" data-category="fives">
+                        <span class="score-name">⚄ Cinq (5)</span>
+                        <span class="score-value" id="score-fives">-</span>
+                    </div>
+                    <div class="score-row" data-category="sixes">
+                        <span class="score-name">⚅ Six (6)</span>
+                        <span class="score-value" id="score-sixes">-</span>
+                    </div>
+                    
+                    <div class="score-row bonus-row">
+                        <span class="score-name">🎁 Bonus (≥63)</span>
+                        <span class="score-value" id="score-bonus">0</span>
+                    </div>
+                    <p class="upper-bonus">Total supérieur: <span id="upper-total">0</span>/63</p>
+
+                    <div class="divider"></div>
+
+                    <!-- Lower Section -->
+                    <div class="score-row" data-category="threeOfKind">
+                        <span class="score-name">🎯 Brelan</span>
+                        <span class="score-value" id="score-threeOfKind">-</span>
+                    </div>
+                    <div class="score-row" data-category="fourOfKind">
+                        <span class="score-name">🎯 Carré</span>
+                        <span class="score-value" id="score-fourOfKind">-</span>
+                    </div>
+                    <div class="score-row" data-category="fullHouse">
+                        <span class="score-name">🏠 Full</span>
+                        <span class="score-value" id="score-fullHouse">-</span>
+                    </div>
+                    <div class="score-row" data-category="smallStraight">
+                        <span class="score-name">📏 Petite Suite</span>
+                        <span class="score-value" id="score-smallStraight">-</span>
+                    </div>
+                    <div class="score-row" data-category="largeStraight">
+                        <span class="score-name">📐 Grande Suite</span>
+                        <span class="score-value" id="score-largeStraight">-</span>
+                    </div>
+                    <div class="score-row" data-category="yahtzee">
+                        <span class="score-name">⭐ Yahtzee</span>
+                        <span class="score-value" id="score-yahtzee">-</span>
+                    </div>
+                    <div class="score-row" data-category="chance">
+                        <span class="score-name">🎰 Chance</span>
+                        <span class="score-value" id="score-chance">-</span>
+                    </div>
+
+                    <div class="score-row total-row">
+                        <span class="score-name">🏆 TOTAL</span>
+                        <span class="score-value" id="score-total">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="game-over-modal">
+        <div class="modal">
+            <div class="modal-icon">🏆</div>
+            <h3 class="modal-title">Partie Terminée!</h3>
+            <div class="modal-score" id="final-score">0</div>
+            <p class="modal-text">Félicitations! Vous avez terminé la partie.</p>
+            <button class="btn" id="btn-play-again">🎲 Rejouer</button>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div class="modal-overlay" id="rules-modal">
+        <div class="modal rules-modal-content">
+            <div class="modal-icon">📜</div>
+            <h3 class="modal-title">Règles du Jeu</h3>
+            
+            <div class="rules-content">
+                <div class="rules-section">
+                    <h4>🎲 Le But</h4>
+                    <p>Marquez le plus de points possible en lançant 5 dés pour réaliser des combinaisons.</p>
+                </div>
+
+                <div class="rules-section">
+                    <h4>🎮 Déroulement</h4>
+                    <ul>
+                        <li>Vous avez <strong>3 lancers</strong> par tour.</li>
+                        <li>Après chaque lancer, cliquez sur les dés pour les <strong>garder</strong> (🔒).</li>
+                        <li>Choisissez une case vide dans la feuille de score pour valider vos points.</li>
+                    </ul>
+                </div>
+
+                <div class="rules-section">
+                    <h4>📊 Combinaisons</h4>
+                    <div class="rules-grid">
+                        <div class="rule-item">
+                            <span class="rule-name">1-6:</span>
+                            <span class="rule-desc">Somme des dés correspondants</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">Brelan:</span>
+                            <span class="rule-desc">3 dés identiques (Total des 5 dés)</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">Carré:</span>
+                            <span class="rule-desc">4 dés identiques (Total des 5 dés)</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">Full:</span>
+                            <span class="rule-desc">3 identiques + 2 identiques (25 pts)</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">P. Suite:</span>
+                            <span class="rule-desc">4 dés qui se suivent (30 pts)</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">G. Suite:</span>
+                            <span class="rule-desc">5 dés qui se suivent (40 pts)</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="rule-name">Yahtzee:</span>
+                            <span class="rule-desc">5 dés identiques (50 pts)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rules-section">
+                    <h4>⭐ Bonus</h4>
+                    <p>Obtenez 63 points ou plus dans la partie supérieure (1-6) pour gagner un <strong>bonus de 35 points</strong>!</p>
+                </div>
+            </div>
+
+            <button class="btn secondary" id="btn-close-rules">Compris!</button>
+        </div>
+    </div>
+
+    <script>
+        class YahtzeeGame {
+            constructor() {
+                this.dice = [1, 1, 1, 1, 1];
+                this.locked = [false, false, false, false, false];
+                this.rollsLeft = 3;
+                this.scores = {};
+                this.categories = [
+                    'ones', 'twos', 'threes', 'fours', 'fives', 'sixes',
+                    'threeOfKind', 'fourOfKind', 'fullHouse', 
+                    'smallStraight', 'largeStraight', 'yahtzee', 'chance'
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.createParticles();
+                this.createDice();
+                this.bindEvents();
+                this.updateUI();
+            }
+
+            createParticles() {
+                const container = document.getElementById('particles');
+                for (let i = 0; i < 40; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    container.appendChild(particle);
+                }
+            }
+
+            createDice() {
+                const container = document.getElementById('dice-container');
+                container.innerHTML = '';
+                
+                for (let i = 0; i < 5; i++) {
+                    const dice = document.createElement('div');
+                    dice.className = 'dice';
+                    dice.dataset.index = i;
+                    dice.dataset.value = this.dice[i];
+                    
+                    // Create 9 dot positions
+                    for (let j = 0; j < 9; j++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'dot';
+                        dice.appendChild(dot);
+                    }
+                    
+                    // Lock indicator
+                    const lock = document.createElement('div');
+                    lock.className = 'lock-indicator';
+                    lock.textContent = '🔒';
+                    dice.appendChild(lock);
+                    
+                    container.appendChild(dice);
+                }
+            }
+
+            bindEvents() {
+                // Roll button
+                document.getElementById('btn-roll').addEventListener('click', () => this.roll());
+                
+                // New game button
+                document.getElementById('btn-new-game').addEventListener('click', () => this.newGame());
+                
+                // Dice clicks (lock/unlock)
+                document.getElementById('dice-container').addEventListener('click', (e) => {
+                    const dice = e.target.closest('.dice');
+                    if (dice && this.rollsLeft < 3) {
+                        const index = parseInt(dice.dataset.index);
+                        this.toggleLock(index);
+                    }
+                });
+                
+                // Score row clicks
+                document.getElementById('score-table').addEventListener('click', (e) => {
+                    const row = e.target.closest('.score-row');
+                    if (row && row.dataset.category && !this.scores[row.dataset.category] && this.rollsLeft < 3) {
+                        this.selectCategory(row.dataset.category);
+                    }
+                });
+
+                // Play again
+                document.getElementById('btn-play-again').addEventListener('click', () => {
+                    document.getElementById('game-over-modal').classList.remove('active');
+                    this.newGame();
+                });
+
+                // Rules modal
+                document.getElementById('btn-rules').addEventListener('click', () => {
+                    document.getElementById('rules-modal').classList.add('active');
+                });
+
+                document.getElementById('btn-close-rules').addEventListener('click', () => {
+                    document.getElementById('rules-modal').classList.remove('active');
+                });
+
+                // Close modals on outside click
+                document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
+            }
+
+            roll() {
+                if (this.rollsLeft <= 0) return;
+                
+                const diceElements = document.querySelectorAll('.dice');
+                
+                // Roll animation
+                diceElements.forEach((dice, i) => {
+                    if (!this.locked[i]) {
+                        dice.classList.add('rolling');
+                    }
+                });
+                
+                // Generate new values after animation
+                setTimeout(() => {
+                    for (let i = 0; i < 5; i++) {
+                        if (!this.locked[i]) {
+                            this.dice[i] = Math.floor(Math.random() * 6) + 1;
+                        }
+                    }
+                    
+                    this.rollsLeft--;
+                    this.updateUI();
+                    
+                    diceElements.forEach(dice => {
+                        dice.classList.remove('rolling');
+                    });
+                    
+                    this.showPreviews();
+                }, 500);
+            }
+
+            toggleLock(index) {
+                this.locked[index] = !this.locked[index];
+                this.updateUI();
+            }
+
+            selectCategory(category) {
+                const score = this.calculateScore(category);
+                this.scores[category] = score;
+                
+                // Reset for next turn
+                this.rollsLeft = 3;
+                this.locked = [false, false, false, false, false];
+                this.dice = [1, 1, 1, 1, 1];
+                
+                this.updateUI();
+                this.clearPreviews();
+                
+                // Check if game is over
+                if (Object.keys(this.scores).length === 13) {
+                    this.gameOver();
+                }
+            }
+
+            calculateScore(category) {
+                const counts = {};
+                let sum = 0;
+                
+                this.dice.forEach(d => {
+                    counts[d] = (counts[d] || 0) + 1;
+                    sum += d;
+                });
+                
+                const values = Object.values(counts);
+                const sortedDice = [...this.dice].sort((a, b) => a - b);
+                
+                switch (category) {
+                    case 'ones': return (counts[1] || 0) * 1;
+                    case 'twos': return (counts[2] || 0) * 2;
+                    case 'threes': return (counts[3] || 0) * 3;
+                    case 'fours': return (counts[4] || 0) * 4;
+                    case 'fives': return (counts[5] || 0) * 5;
+                    case 'sixes': return (counts[6] || 0) * 6;
+                    
+                    case 'threeOfKind':
+                        return values.some(v => v >= 3) ? sum : 0;
+                    
+                    case 'fourOfKind':
+                        return values.some(v => v >= 4) ? sum : 0;
+                    
+                    case 'fullHouse':
+                        return (values.includes(3) && values.includes(2)) ? 25 : 0;
+                    
+                    case 'smallStraight':
+                        const small = ['1234', '2345', '3456'];
+                        const unique = [...new Set(sortedDice)].join('');
+                        return small.some(s => unique.includes(s)) ? 30 : 0;
+                    
+                    case 'largeStraight':
+                        const large = ['12345', '23456'];
+                        const allUnique = [...new Set(sortedDice)].join('');
+                        return large.includes(allUnique) ? 40 : 0;
+                    
+                    case 'yahtzee':
+                        return values.includes(5) ? 50 : 0;
+                    
+                    case 'chance':
+                        return sum;
+                    
+                    default:
+                        return 0;
+                }
+            }
+
+            showPreviews() {
+                this.clearPreviews();
+                
+                this.categories.forEach(cat => {
+                    if (!this.scores[cat]) {
+                        const score = this.calculateScore(cat);
+                        const valueEl = document.getElementById(`score-${cat}`);
+                        const rowEl = valueEl.closest('.score-row');
+                        
+                        valueEl.textContent = score;
+                        valueEl.classList.add('preview-value');
+                        rowEl.classList.add('preview');
+                    }
+                });
+            }
+
+            clearPreviews() {
+                document.querySelectorAll('.score-row.preview').forEach(row => {
+                    row.classList.remove('preview');
+                    const value = row.querySelector('.score-value');
+                    if (value.classList.contains('preview-value')) {
+                        value.classList.remove('preview-value');
+                        if (!this.scores[row.dataset.category]) {
+                            value.textContent = '-';
+                        }
+                    }
+                });
+            }
+
+            updateUI() {
+                // Update dice display
+                const diceElements = document.querySelectorAll('.dice');
+                diceElements.forEach((dice, i) => {
+                    dice.dataset.value = this.dice[i];
+                    dice.classList.toggle('locked', this.locked[i]);
+                });
+                
+                // Update rolls left
+                document.getElementById('rolls-left').textContent = this.rollsLeft;
+                document.getElementById('btn-roll').disabled = this.rollsLeft <= 0;
+                
+                // Update scores
+                this.categories.forEach(cat => {
+                    const el = document.getElementById(`score-${cat}`);
+                    const row = el.closest('.score-row');
+                    
+                    if (this.scores[cat] !== undefined) {
+                        el.textContent = this.scores[cat];
+                        el.classList.remove('preview-value');
+                        row.classList.remove('preview');
+                        row.classList.add('scored');
+                    }
+                });
+                
+                // Calculate upper section total and bonus
+                const upperCategories = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'];
+                const upperTotal = upperCategories.reduce((sum, cat) => {
+                    return sum + (this.scores[cat] || 0);
+                }, 0);
+                
+                document.getElementById('upper-total').textContent = upperTotal;
+                
+                const bonus = upperTotal >= 63 ? 35 : 0;
+                document.getElementById('score-bonus').textContent = bonus;
+                
+                // Calculate grand total
+                const lowerCategories = ['threeOfKind', 'fourOfKind', 'fullHouse', 
+                    'smallStraight', 'largeStraight', 'yahtzee', 'chance'];
+                const lowerTotal = lowerCategories.reduce((sum, cat) => {
+                    return sum + (this.scores[cat] || 0);
+                }, 0);
+                
+                const grandTotal = upperTotal + bonus + lowerTotal;
+                document.getElementById('score-total').textContent = grandTotal;
+            }
+
+            gameOver() {
+                const total = parseInt(document.getElementById('score-total').textContent);
+                document.getElementById('final-score').textContent = total + ' points';
+                document.getElementById('game-over-modal').classList.add('active');
+            }
+
+            newGame() {
+                this.dice = [1, 1, 1, 1, 1];
+                this.locked = [false, false, false, false, false];
+                this.rollsLeft = 3;
+                this.scores = {};
+                
+                // Reset score display
+                this.categories.forEach(cat => {
+                    const el = document.getElementById(`score-${cat}`);
+                    const row = el.closest('.score-row');
+                    el.textContent = '-';
+                    el.classList.remove('preview-value');
+                    row.classList.remove('scored', 'preview');
+                });
+                
+                document.getElementById('score-bonus').textContent = '0';
+                document.getElementById('upper-total').textContent = '0';
+                document.getElementById('score-total').textContent = '0';
+                
+                this.updateUI();
+            }
+        }
+
+        // Start the game
+        const game = new YahtzeeGame();
+    </script>
+<script src="score-sync.js"></script></body>
+</html>
+
