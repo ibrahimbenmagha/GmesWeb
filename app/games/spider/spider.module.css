@@ -1,0 +1,289 @@
+.body {
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.particles {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: rgba(168, 85, 247, 0.4);
+    border-radius: 50%;
+    animation: float 15s infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+}
+
+.header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.backBtn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 12px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.gameContainer {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.controlPanel {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stats {
+    display: flex;
+    gap: 30px;
+}
+
+.stat { text-align: center; }
+.statLabel { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+.statValue {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.controls { display: flex; gap: 10px; }
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btnPrimary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; }
+.btnSecondary { background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+.gameBoard {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    min-height: 600px;
+}
+
+.tableau {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.column {
+    min-height: 500px;
+    border-radius: 12px;
+    padding: 5px;
+    position: relative;
+}
+
+.column::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 90%; height: 140px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.card {
+    width: 100%;
+    aspect-ratio: 5/7;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: -85%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+    z-index: 1;
+}
+
+.card:last-child { margin-bottom: 0; }
+
+.faceDown {
+    background: #1e3a8a;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.faceDown::after { content: '🕷️'; }
+
+.faceUp {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 4px;
+    color: #000;
+}
+
+.red { color: #dc2626; }
+
+.cardCorner {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.topLeft { top: 3px; left: 3px; }
+.bottomRight { bottom: 3px; right: 3px; transform: rotate(180deg); }
+
+.cardPattern {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20%;
+}
+
+.stockContainer {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: center;
+}
+
+.stockPile { display: flex; }
+
+.stockDeck {
+    width: 70px; height: 98px;
+    background: #1e3a8a;
+    border: 2px solid white;
+    border-radius: 8px;
+    margin-left: -30px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+.stockDeck:first-child { margin-left: 0; }
+
+.stockCount {
+    position: absolute;
+    top: -8px; right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    padding: 40px;
+    border-radius: 24px;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    text-align: center;
+}
+
+.difficultyOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.difficultyBtn {
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 2px solid rgba(168, 85, 247, 0.3);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dragging { opacity: 0.5; }
+.dragOver { background: rgba(139, 92, 246, 0.2); }
+
+.completing {
+    animation: completeSequence 0.8s ease-in-out forwards;
+}
+
+@keyframes completeSequence {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0) rotate(180deg); opacity: 0; }
+}

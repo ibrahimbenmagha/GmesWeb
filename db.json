@@ -5,8 +5,8 @@
       "title": "2048 Master",
       "description": "Fusionnez les tuiles pour atteindre 2048!",
       "icon": "🧱",
-      "slug": "2048.html",
-      "highScore": 4,
+      "slug": "2048",
+      "highScore": 1928,
       "features": [
         "🎯 Addictif",
         "🏆 Score"
@@ -17,7 +17,7 @@
       "title": "Sudoku Master",
       "description": "Testez votre logique avec ce classique intemporel.",
       "icon": "🧩",
-      "slug": "Suduku.html",
+      "slug": "sudoku",
       "highScore": 0,
       "features": [
         "🎯 Logic",
@@ -29,7 +29,7 @@
       "title": "Chess Master",
       "description": "Affrontez l'IA aux échecs avec une stratégie avancée.",
       "icon": "♔",
-      "slug": "Chess.html",
+      "slug": "chess",
       "highScore": 0,
       "features": [
         "⭐ 5 Niveaux",
@@ -41,7 +41,7 @@
       "title": "Jeu de Paires",
       "description": "Entraînez votre mémoire en trouvant toutes les paires.",
       "icon": "🎴",
-      "slug": "Pair.html",
+      "slug": "pair",
       "highScore": 0,
       "features": [
         "🧠 Mémoire",
@@ -53,7 +53,7 @@
       "title": "Snake Master",
       "description": "Le classique serpent! Mangez et grandissez.",
       "icon": "🐍",
-      "slug": "Snake.html",
+      "slug": "snake",
       "highScore": 368,
       "features": [
         "🚀 3 Vitesses",
@@ -65,7 +65,7 @@
       "title": "Démineur Master",
       "description": "Logique et intuition! Trouvez toutes les mines.",
       "icon": "💣",
-      "slug": "Minesweeper.html",
+      "slug": "minesweeper",
       "highScore": 0,
       "features": [
         "🚩 Drapeaux",
@@ -77,7 +77,7 @@
       "title": "Spider Solitaire",
       "description": "Le célèbre jeu de cartes classique.",
       "icon": "🕷️",
-      "slug": "SpiderSolitaire.html",
+      "slug": "spider",
       "highScore": 0,
       "features": [
         "🎴 3 Difficultés",
@@ -89,7 +89,7 @@
       "title": "Yahtzee Master",
       "description": "Le classique jeu de dés! Laissez parler la chance.",
       "icon": "🎲",
-      "slug": "Yahtzee.html",
+      "slug": "yahtzee",
       "highScore": 0,
       "features": [
         "🎲 5 Dés",
