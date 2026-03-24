@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import styles from './pair.module.css';
 
 type Level = 'easy' | 'medium' | 'hard' | 'expert';
@@ -166,9 +167,9 @@ export default function PairGame() {
 
     return (
         <div className={styles.body}>
-            <a href="/" className={styles.backToMenuBtn}>
+            <Link href="/" className={styles.backToMenuBtn}>
                 <span>←</span> Menu
-            </a>
+            </Link>
 
             <div className={styles.container}>
                 <h1 className={styles.title}>🎮 Jeu de Paires</h1>
@@ -219,7 +220,7 @@ export default function PairGame() {
                                 ${card.isMatched ? styles.cardMatched : ''}
                                 ${wrongCards.includes(card.id) ? styles.cardWrong : ''}
                             `}
-                            onClick={() => handleSquareClick(card.id)}
+                            onClick={() => handleCardClick(card.id)}
                         >
                             <div className={styles.cardFront}></div>
                             <div className={styles.cardBack}>
@@ -267,7 +268,3 @@ export default function PairGame() {
     );
 }
 
-// Fixed handleSquareClick call in the map
-const handleSquareClick = (id: number) => {
-    // This is defined inside the component, the map one was a typo in my mental draft
-};

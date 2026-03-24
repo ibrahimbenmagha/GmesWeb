@@ -1442,63 +1442,44 @@
 
             // PRIORITY 3: Empty column strategy
             if (toColumn.length === 0) {
-                // Only move to empty column if:
-                // 1) Moving a King (ideal)
-                // 2) OR it uncovers a card (already scored above)
-                // 3) OR we're moving a long sequence
                 if (cardsToMove[0].value === 'K') {
                     score += 30; // Kings belong in empty columns
                 } else if (cardsToMove.length >= 3) {
                     score += 20; // Long sequences ok
                 } else if (cardIndex > 0 && !fromColumn[cardIndex - 1].faceUp) {
-                    // Already scored for uncovering, but slightly boost
                     score += 10;
                 } else {
                     // Discourage moving small cards to empty columns
-                    score -= 30;
+                    score -= 40;
                 }
             }
 
             // PRIORITY 4: Prefer moving smaller sequences (keep options open)
             score += (13 - cardsToMove.length) * 2;
 
-            // PRIORITY 5: Avoid breaking up same-suit sequences
+            // PRIORITY 5: Avoid breaking up same-suit sequences and lateral moves
             if (cardIndex > 0) {
                 const cardBelow = fromColumn[cardIndex - 1];
                 const movingCard = cardsToMove[0];
+
                 if (cardBelow.faceUp && 
                     cardBelow.suit === movingCard.suit && 
                     cardBelow.valueIndex === movingCard.valueIndex + 1) {
-                    score -= 25; // Penalty for breaking same-suit sequence
+                    score -= 60; // HUGE Penalty for breaking same-suit sequence
                 }
-            }
 
-            // PRIORITY 6: Prefer moves that create opportunities
-            // Check if the move allows other cards to be played
-            if (fromColumn.length - cardsToMove.length > 0) {
-                const newTopCard = fromColumn[fromColumn.length - cardsToMove.length - 1];
-                if (newTopCard.faceUp) {
-                    // Can this newly exposed card be played somewhere?
-                    for (let col = 0; col < 10; col++) {
-                        if (col === fromCol || col === toCol) continue;
-                        const targetCol = gameState.columns[col];
-                        if (targetCol.length > 0) {
-                            const targetTop = targetCol[targetCol.length - 1];
-                            if (targetTop.valueIndex === newTopCard.valueIndex + 1) {
-                                score += 15; // Creates new opportunity
-                                if (targetTop.suit === newTopCard.suit) {
-                                    score += 10; // Even better if same suit
-                                }
-                            }
-                        }
+                // Pointless lateral move check
+                if (toColumn.length > 0) {
+                    const targetTop = toColumn[toColumn.length - 1];
+                    if (cardBelow.faceUp && targetTop.valueIndex === cardBelow.valueIndex && targetTop.suit !== movingCard.suit) {
+                        score -= 50;
                     }
                 }
             }
 
-            // PRIORITY 7: Avoid redundant moves
-            // Don't move from an empty-ish column unless necessary
-            if (fromColumn.length <= 3 && toColumn.length > 5) {
-                score -= 10;
+            // PRIORITY 6: Pointless whole column moves
+            if (cardIndex === 0 && toColumn.length === 0) {
+                score -= 1000;
             }
 
             return score;
@@ -1544,8 +1525,14 @@
 
             const previousState = gameState.moveHistory.pop();
             
-            // Restore previous state
-            gameState.columns = previousState.columns.map(col => col.map(card => ({...card})));
+            // Restore previous state but keep current faceUp status if true
+            gameState.columns = previousState.columns.map((col, colIdx) => 
+                col.map((card, cardIdx) => {
+                    const currentCard = gameState.columns[colIdx]?.[cardIdx];
+                    const faceUp = (currentCard && currentCard.faceUp) ? true : card.faceUp;
+                    return {...card, faceUp};
+                })
+            );
             gameState.stock = previousState.stock.map(card => ({...card}));
             gameState.moves = previousState.moves;
             gameState.score = previousState.score;

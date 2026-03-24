@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import styles from './snake.module.css';
 
 type Point = { x: number; y: number };
@@ -31,6 +32,8 @@ export default function SnakeGame() {
     const obstaclesRef = useRef<Point[]>([]);
     const foodCounterRef = useRef<number>(0);
     const loopRef = useRef<NodeJS.Timeout | null>(null);
+    const updateRef = useRef<() => void>(() => {});
+    const [particles, setParticles] = useState<{id: number, left: string, delay: string, duration: string}[]>([]);
 
     // Initialize best score from local storage
     useEffect(() => {
@@ -215,6 +218,7 @@ export default function SnakeGame() {
     }, []);
 
     const update = useCallback(() => {
+        // ... (unmodified)
         directionRef.current = { ...nextDirectionRef.current };
         const head = {
             x: snakeRef.current[0].x + directionRef.current.x,
@@ -255,7 +259,7 @@ export default function SnakeGame() {
                 setLevel(prevLevel => {
                     if (newLevel > prevLevel) {
                         if (loopRef.current) clearInterval(loopRef.current);
-                        loopRef.current = setInterval(update, getSpeed(newLevel));
+                        loopRef.current = setInterval(updateRef.current!, getSpeed(newLevel));
                         if (gameMode === 'obstacles') generateObstacles(newLevel);
                         return newLevel;
                     }
@@ -297,6 +301,10 @@ export default function SnakeGame() {
 
         draw();
     }, [gameMode, gameOver, getSpeed, level, spawnFood, generateObstacles, draw]);
+
+    useEffect(() => {
+        updateRef.current = update;
+    }, [update]);
 
     const startGame = useCallback(() => {
         snakeRef.current = [
@@ -371,26 +379,35 @@ export default function SnakeGame() {
     }, [gameState]);
 
     // Particles
-    const particles = Array.from({ length: 30 }).map((_, i) => (
-        <div 
-            key={i} 
-            className={styles.particle}
-            style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 15}s`,
-                animationDuration: `${10 + Math.random() * 10}s`
-            }}
-        />
-    ));
+    useEffect(() => {
+        setParticles(Array.from({ length: 30 }).map((_, i) => ({
+            id: i,
+            left: `${Math.random() * 100}%`,
+            delay: `${Math.random() * 15}s`,
+            duration: `${10 + Math.random() * 10}s`
+        })));
+    }, []);
 
     return (
         <div className={styles.body}>
-            <a href="/" className={styles.backToMenuBtn}>
+            <Link href="/" className={styles.backToMenuBtn}>
                 <span>←</span>
                 <span>Menu</span>
-            </a>
+            </Link>
 
-            <div className={styles.particles}>{particles}</div>
+            <div className={styles.particles}>
+                {particles.map(p => (
+                    <div 
+                        key={p.id} 
+                        className={styles.particle}
+                        style={{
+                            left: p.left,
+                            animationDelay: p.delay,
+                            animationDuration: p.duration
+                        }}
+                    />
+                ))}
+            </div>
 
             <div className={styles.container}>
                 <header className={styles.header}>

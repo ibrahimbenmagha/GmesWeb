@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
 import styles from './2048.module.css';
 
 class Tile {
@@ -56,30 +59,7 @@ export default function Game2048() {
         keepPlayingRef.current = keepPlaying;
     }, [grid, score, gameOver, won, keepPlaying]);
 
-    useEffect(() => {
-        setIsClient(true);
-        const storedBest = localStorage.getItem('2048-best');
-        if (storedBest) {
-            setBestScore(parseInt(storedBest));
-        }
-        createParticles();
-        newGame();
-        
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                e.preventDefault();
-                handleMove(e.key.replace('Arrow', '').toLowerCase() as 'up' | 'down' | 'left' | 'right');
-            }
-        };
-        
-        document.addEventListener('keydown', handleKeyDown);
-        
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
-
-    const createParticles = () => {
+    const createParticles = useCallback(() => {
         if (!particlesRef.current) return;
         const container = particlesRef.current;
         container.innerHTML = '';
@@ -91,7 +71,7 @@ export default function Game2048() {
             particle.style.animationDuration = (10 + Math.random() * 10) + 's';
             container.appendChild(particle);
         }
-    };
+    }, []);
 
     const addRandomTile = useCallback((currentGrid: (Tile | null)[][]): {grid: (Tile | null)[][], added: boolean} => {
         const emptyCells = [];
@@ -128,9 +108,9 @@ export default function Game2048() {
         setScore(0);
         isAnimatingRef.current = false;
         
-        let initialGrid = Array(4).fill(null).map(() => Array(4).fill(null));
-        let result1 = addRandomTile(initialGrid);
-        let result2 = addRandomTile(result1.grid);
+        const initialGrid = Array(4).fill(null).map(() => Array(4).fill(null));
+        const result1 = addRandomTile(initialGrid);
+        const result2 = addRandomTile(result1.grid);
         
         setGrid(result2.grid);
     }, [addRandomTile]);
@@ -142,20 +122,22 @@ export default function Game2048() {
         let moved = false;
         let newScore = scoreRef.current;
         
-        const getVector = () => {
-            if (direction === 'up') return { x: 0, y: -1 };
-            if (direction === 'right') return { x: 1, y: 0 };
-            if (direction === 'down') return { x: 0, y: 1 };
-            if (direction === 'left') return { x: -1, y: 0 };
-            return { x: 0, y: 0 };
+        const getVector = (dir: 'up' | 'down' | 'left' | 'right') => {
+            const vectors: Record<'up' | 'down' | 'left' | 'right', { x: number, y: number }> = {
+                'up': { x: 0, y: -1 },
+                'right': { x: 1, y: 0 },
+                'down': { x: 0, y: 1 },
+                'left': { x: -1, y: 0 }
+            };
+            return vectors[dir];
         };
         
-        const vector = getVector();
+        const vector = getVector(direction);
         
-        const buildTraversals = (vector: {x: number, y: number}) => {
+        const buildTraversals = (v: {x: number, y: number}) => {
             const traversals = { x: [0, 1, 2, 3], y: [0, 1, 2, 3] };
-            if (vector.x === 1) traversals.x = traversals.x.reverse();
-            if (vector.y === 1) traversals.y = traversals.y.reverse();
+            if (v.x === 1) traversals.x = [3, 2, 1, 0];
+            if (v.y === 1) traversals.y = [3, 2, 1, 0];
             return traversals;
         };
 
@@ -173,26 +155,24 @@ export default function Game2048() {
             }
         }
         
-        const tilesToMerge: {tile: Tile, newValue: number}[] = [];
-        
         traversals.x.forEach(c => {
             traversals.y.forEach(r => {
                 const tile = nextGrid[r][c];
                 if (tile) {
+                    const currentPos = { r: tile.r, c: tile.c };
                     let previous;
-                    let current = { r: tile.r, c: tile.c };
                     
                     do {
-                        previous = { r: current.r, c: current.c };
-                        current.r += vector.y;
-                        current.c += vector.x;
+                        previous = { r: currentPos.r, c: currentPos.c };
+                        currentPos.r += vector.y;
+                        currentPos.c += vector.x;
                     } while (
-                        current.r >= 0 && current.r < 4 && current.c >= 0 && current.c < 4 && 
-                        !nextGrid[current.r][current.c]
+                        currentPos.r >= 0 && currentPos.r < 4 && currentPos.c >= 0 && currentPos.c < 4 && 
+                        !nextGrid[currentPos.r][currentPos.c]
                     );
                     
                     const farthest = previous;
-                    const next = current;
+                    const next = currentPos;
                     
                     const nextCell = (next.r >= 0 && next.r < 4 && next.c >= 0 && next.c < 4) 
                         ? nextGrid[next.r][next.c] 
@@ -203,12 +183,10 @@ export default function Game2048() {
                         const mergedTile = new Tile(next.r, next.c, tile.value * 2, tileIdCounter.current++);
                         mergedTile.mergedThisTurn = true;
                         mergedTile.isMerged = true;
-                        mergedTile.isNew = false;
                         
                         nextGrid[r][c] = null;
                         nextGrid[next.r][next.c] = mergedTile;
                         
-                        tilesToMerge.push({tile: mergedTile, newValue: tile.value * 2});
                         newScore += tile.value * 2;
                         moved = true;
                         
@@ -243,7 +221,7 @@ export default function Game2048() {
             });
             
             setTimeout(() => {
-                let finalGrid = addRandomTile(nextGrid).grid;
+                const finalGrid = addRandomTile(nextGrid).grid;
                 setGrid(finalGrid);
                 isAnimatingRef.current = false;
                 
@@ -262,31 +240,54 @@ export default function Game2048() {
                 }
                 
                 // Check Game Over
-                let gameOver = true;
+                let gameOverState = true;
                 for (let r = 0; r < 4; r++) {
                     for (let c = 0; c < 4; c++) {
                         if (!finalGrid[r][c]) {
-                            gameOver = false;
+                            gameOverState = false;
                             break;
                         }
                     }
                 }
-                if (gameOver) {
+                if (gameOverState) {
                     for (let r = 0; r < 4; r++) {
                         for (let c = 0; c < 4; c++) {
                             const val = finalGrid[r][c]!.value;
-                            if (c < 3 && finalGrid[r][c + 1] && finalGrid[r][c + 1]!.value === val) gameOver = false;
-                            if (r < 3 && finalGrid[r + 1][c] && finalGrid[r + 1][c]!.value === val) gameOver = false;
+                            if (c < 3 && finalGrid[r][c + 1] && finalGrid[r][c + 1]!.value === val) gameOverState = false;
+                            if (r < 3 && finalGrid[r + 1][c] && finalGrid[r + 1][c]!.value === val) gameOverState = false;
                         }
                     }
                 }
                 
-                if (gameOver) {
+                if (gameOverState) {
                     setGameOver(true);
                 }
             }, 150);
         }
     }, [addRandomTile]);
+
+    useEffect(() => {
+        setIsClient(true);
+        const storedBest = localStorage.getItem('2048-best');
+        if (storedBest) {
+            setBestScore(parseInt(storedBest));
+        }
+        createParticles();
+        newGame();
+        
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                handleMove(e.key.replace('Arrow', '').toLowerCase() as 'up' | 'down' | 'left' | 'right');
+            }
+        };
+        
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [createParticles, newGame, handleMove]);
 
     // Touch Support
     const touchStartRef = useRef<{x: number, y: number} | null>(null);
@@ -321,10 +322,10 @@ export default function Game2048() {
 
     return (
         <div className={styles.body}>
-            <a href="/" className={styles.backToMenuBtn}>
+            <Link href="/" className={styles.backToMenuBtn}>
                 <span>←</span>
                 <span>Menu</span>
-            </a>
+            </Link>
 
             <div className={styles.particles} ref={particlesRef}></div>
 
@@ -359,10 +360,6 @@ export default function Game2048() {
                     
                     <div className={styles.tilesContainer}>
                         {activeTiles.map((tile) => {
-                            // Calculate position based on grid row/col
-                            // Assumes max-width: 500px logic
-                            // In a real responsive setup, we use %-based translation or calculate rects.
-                            // For simplicity, we use % positioning for stable layout across sizes
                             return (
                                 <div 
                                     key={tile.id}

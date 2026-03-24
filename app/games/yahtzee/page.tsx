@@ -118,7 +118,7 @@ export default function Yahtzee() {
 
     return (
         <div className={styles.body}>
-            <a href="/" className={styles.backBtn} onClick={(e) => { e.preventDefault(); window.location.href = '/'; }}>← Menu</a>
+            <Link href="/" className={styles.backBtn}>← Menu</Link>
             <div className={styles.container}>
                 <header className={styles.header}>
                     <h1 className={styles.logo}>🎲 Yahtzee Master</h1>

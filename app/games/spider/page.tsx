@@ -33,10 +33,12 @@ export default function SpiderSolitaire() {
     const [sequences, setSequences] = useState(0);
     const [timeElapsed, setTimeElapsed] = useState(0);
     const [gameOver, setGameOver] = useState(false);
-    const [history, setHistory] = useState<Partial<Record<string, any>>[]>([]);
+    const [history, setHistory] = useState<{ columns: Card[][], stock: Card[], moves: number, score: number, sequences: number }[]>([]);
 
     const [draggedCoords, setDraggedCoords] = useState<{ col: number, index: number } | null>(null);
     const [dragOverCol, setDragOverCol] = useState<number | null>(null);
+    const [hintCoords, setHintCoords] = useState<{ col: number, index: number }[]>([]);
+    const [hintTarget, setHintTarget] = useState<number | null>(null);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -202,12 +204,146 @@ export default function SpiderSolitaire() {
     const undo = () => {
         if (history.length === 0) return;
         const last = history[history.length - 1];
-        setColumns(last.columns);
+        
+        const restoredColumns = last.columns.map((col: Card[], colIdx: number) => 
+            col.map((card: Card, cardIdx: number) => {
+                const currentCard = columns[colIdx]?.[cardIdx];
+                const faceUp = (currentCard && currentCard.faceUp) ? true : card.faceUp;
+                return {...card, faceUp};
+            })
+        );
+        
+        setColumns(restoredColumns);
         setStock(last.stock);
         setMoves(last.moves);
         setScore(last.score);
         setSequences(last.sequences);
         setHistory(prev => prev.slice(0, -1));
+    };
+
+    const evaluateMove = (fromCol: number, toCol: number, cardIndex: number, cardsToMove: Card[], currentCols: Card[][]) => {
+        let score = 0;
+        const fromColumn = currentCols[fromCol];
+        const toColumn = currentCols[toCol];
+
+        // 1. Uncovering a face-down card is excellent
+        if (cardIndex > 0 && !fromColumn[cardIndex - 1].faceUp) {
+            score += 100;
+        }
+
+        if (toColumn.length > 0) {
+            const topCard = toColumn[toColumn.length - 1];
+            const movingCard = cardsToMove[0];
+            
+            // 2. Same suit sequence building
+            if (topCard.suit === movingCard.suit) {
+                score += 50;
+                let seqLen = 1;
+                for (let i = toColumn.length - 1; i > 0; i--) {
+                    if (toColumn[i].suit === toColumn[i-1].suit && toColumn[i].valueIndex === toColumn[i-1].valueIndex - 1) {
+                        seqLen++;
+                    } else break;
+                }
+                score += seqLen * 5;
+            }
+        }
+
+        // 3. Empty column rules
+        if (toColumn.length === 0) {
+            if (cardsToMove[0].value === 'K') {
+                score += 30; // Kings to empty columns
+            } else if (cardsToMove.length >= 3) {
+                score += 20; // Long sequences are fine
+            } else if (cardIndex > 0 && !fromColumn[cardIndex - 1].faceUp) {
+                score += 10; // Only to uncover
+            } else {
+                score -= 40; // Discourage moving small cards to empty columns
+            }
+        }
+
+        // Prefer moving smaller sequences
+        score += (13 - cardsToMove.length) * 2;
+
+        if (cardIndex > 0) {
+            const cardBelow = fromColumn[cardIndex - 1];
+            const movingCard = cardsToMove[0];
+            
+            // 4. Penalty for breaking same-suit sequence
+            if (cardBelow.faceUp && cardBelow.suit === movingCard.suit && cardBelow.valueIndex === movingCard.valueIndex + 1) {
+                score -= 60; // Huge penalty
+            }
+            
+            // 5. Penalty for useless lateral moves (e.g. moving a 6 from a red 7 to a black 7)
+            if (toColumn.length > 0) {
+                const targetTop = toColumn[toColumn.length - 1];
+                if (cardBelow.faceUp && targetTop.valueIndex === cardBelow.valueIndex && targetTop.suit !== movingCard.suit) {
+                    score -= 50;
+                }
+            }
+        }
+
+        // 6. Pointless whole column moves
+        if (cardIndex === 0 && toColumn.length === 0) {
+            score -= 1000;
+        }
+
+        return score;
+    };
+
+    const getHint = () => {
+        setHintCoords([]);
+        setHintTarget(null);
+
+        const possibleMoves: { fromCol: number, toCol: number, cardIndex: number, score: number }[] = [];
+
+        for (let fromCol = 0; fromCol < 10; fromCol++) {
+            if (columns[fromCol].length === 0) continue;
+
+            let startIndex = columns[fromCol].length - 1;
+            while (startIndex > 0) {
+                const current = columns[fromCol][startIndex];
+                const prev = columns[fromCol][startIndex - 1];
+                if (!prev.faceUp || prev.valueIndex !== current.valueIndex + 1 || prev.suit !== current.suit) break;
+                startIndex--;
+            }
+
+            for (let k = startIndex; k < columns[fromCol].length; k++) {
+                const cardsToMove = columns[fromCol].slice(k);
+                for (let toCol = 0; toCol < 10; toCol++) {
+                    if (fromCol === toCol) continue;
+                    const toColCards = columns[toCol];
+                    const canDropHere = toColCards.length === 0 || (toColCards[toColCards.length - 1].faceUp && toColCards[toColCards.length - 1].valueIndex === cardsToMove[0].valueIndex + 1);
+                    
+                    if (canDropHere) {
+                        const score = evaluateMove(fromCol, toCol, k, cardsToMove, columns);
+                        if (score > -500) { // filter out completely pointless moves like empty to empty
+                            possibleMoves.push({ fromCol, toCol, cardIndex: k, score });
+                        }
+                    }
+                }
+            }
+        }
+
+        if (possibleMoves.length === 0) {
+            if (stock.length > 0) alert('Aucun mouvement utile trouvé! Distribuez de nouvelles cartes.');
+            else alert('Aucun mouvement possible!');
+            return;
+        }
+
+        possibleMoves.sort((a, b) => b.score - a.score);
+        const bestMove = possibleMoves[0];
+
+        const srcCoords = [];
+        for (let i = bestMove.cardIndex; i < columns[bestMove.fromCol].length; i++) {
+            srcCoords.push({ col: bestMove.fromCol, index: i });
+        }
+        setHintCoords(srcCoords);
+        setHintTarget(bestMove.toCol);
+
+        setTimeout(() => {
+            setHintCoords([]);
+            setHintTarget(null);
+        }, 2000);
     };
 
     return (
@@ -227,6 +363,7 @@ export default function SpiderSolitaire() {
                     </div>
                     <div className={styles.controls}>
                         <button className={styles.btnSecondary} onClick={undo} disabled={history.length === 0}>↶ Annuler</button>
+                        <button className={styles.btnSecondary} onClick={getHint}>💡 Indice</button>
                         <button className={styles.btnPrimary} onClick={() => setDifficulty(null)}>🎮 Nouveau Jeu</button>
                     </div>
                 </div>
@@ -235,7 +372,7 @@ export default function SpiderSolitaire() {
                     <div className={styles.tableau}>
                         {columns.map((col, colIdx) => (
                             <div key={colIdx} 
-                                 className={`${styles.column} ${dragOverCol === colIdx ? styles.dragOver : ''}`}
+                                 className={`${styles.column} ${dragOverCol === colIdx ? styles.dragOver : ''} ${hintTarget === colIdx ? styles.hintTarget : ''}`}
                                  onDragOver={e => { e.preventDefault(); setDragOverCol(colIdx); }}
                                  onDragLeave={() => setDragOverCol(null)}
                                  onDrop={() => handleDrop(colIdx)}>
@@ -243,7 +380,7 @@ export default function SpiderSolitaire() {
                                     <div key={card.id}
                                          draggable={canDrag(colIdx, cardIdx)}
                                          onDragStart={() => handleDragStart(colIdx, cardIdx)}
-                                         className={`${styles.card} ${card.faceUp ? styles.faceUp : styles.faceDown} ${card.suit === 'hearts' || card.suit === 'diamonds' ? styles.red : ''} ${draggedCoords?.col === colIdx && cardIdx >= draggedCoords.index ? styles.dragging : ''}`}>
+                                         className={`${styles.card} ${card.faceUp ? styles.faceUp : styles.faceDown} ${card.suit === 'hearts' || card.suit === 'diamonds' ? styles.red : ''} ${draggedCoords?.col === colIdx && cardIdx >= draggedCoords.index ? styles.dragging : ''} ${hintCoords.some(c => c.col === colIdx && c.index === cardIdx) ? styles.hintSource : ''}`}>
                                         {card.faceUp && (
                                             <>
                                                 <div className={`${styles.cardCorner} ${styles.topLeft}`}>

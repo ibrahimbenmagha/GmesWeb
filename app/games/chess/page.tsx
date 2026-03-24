@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import styles from './chess.module.css';
 
 type Color = 'white' | 'black';
@@ -50,6 +51,7 @@ export default function ChessGame() {
     const [winner, setWinner] = useState<Color | 'draw' | null>(null);
     const [time, setTime] = useState(0);
     const [isThinking, setIsThinking] = useState(false);
+    const [particles, setParticles] = useState<{id: number, left: string, delay: string}[]>([]);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const boardRef = useRef<Board>(INITIAL_BOARD);
@@ -353,10 +355,20 @@ export default function ChessGame() {
         setShowDifficultyModal(false);
     };
 
+    useEffect(() => {
+        setParticles(Array.from({ length: 20 }).map((_, i) => ({
+            id: i,
+            left: `${Math.random() * 100}%`,
+            delay: `${Math.random() * 10}s`
+        })));
+    }, []);
+
     return (
         <div className={styles.body}>
             <div className={styles.bgParticles}>
-                {Array.from({ length: 20 }).map((_, i) => <div key={i} className={styles.particle} style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 10}s` }} />)}
+                {particles.map(p => (
+                    <div key={p.id} className={styles.particle} style={{ left: p.left, animationDelay: p.delay }} />
+                ))}
             </div>
 
             <header className={styles.header}>
@@ -364,10 +376,10 @@ export default function ChessGame() {
                     <span>♔</span>
                     <span>Chess Master</span>
                 </div>
-                <a href="/" className={styles.backBtn}>
+                <Link href="/" className={styles.backBtn}>
                     <span>←</span>
                     <span>Menu Principal</span>
-                </a>
+                </Link>
             </header>
 
             <div className={styles.gameContainer}>
